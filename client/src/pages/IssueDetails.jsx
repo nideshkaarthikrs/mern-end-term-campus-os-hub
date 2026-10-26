@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { deleteIssue, getIssueDetails } from "../api/issue.api.js"
+import { claimIssue, completeIssue, deleteIssue, getIssueDetails, unclaimIssue } from "../api/issue.api.js"
 import { getProjectDetails } from "../api/project.api.js"
 import { AuthContext } from "../context/AuthContext.jsx"
 
@@ -12,6 +12,7 @@ const IssueDetails = () => {
     const [issue, setIssue] = useState(null)
     const [loading, setLoading] = useState(true)
     const [deleting, setDeleting] = useState(false)
+    const [updating, setUpdating] = useState(false)
     const [error, setError] = useState("")
 
     useEffect(() => {
@@ -45,8 +46,29 @@ const IssueDetails = () => {
         }
     }
 
+    async function handleIssueAction(action) {
+        try {
+            setUpdating(true)
+            setError("")
+            await action(projectId, issueId)
+            const response = await getIssueDetails(projectId, issueId)
+            setIssue(response.data)
+        } catch (error) {
+            setError(error.response?.data?.message || "Failed to update the issue. Please try again.")
+        } finally {
+            setUpdating(false)
+        }
+    }
+
+    function handleComplete() {
+        if (!window.confirm("Have you reviewed this contribution and confirmed it is complete?")) return
+        handleIssueAction(completeIssue)
+    }
+
     const ownerId = project?.owner?._id || project?.owner
     const canManage = user?.role === "admin" || ownerId === user?._id
+    const isClaimant = issue?.claimedBy?._id === user?._id
+    const canEdit = canManage && ["open", "closed"].includes(issue?.status)
 
     return (
         <div className="min-h-screen bg-[#FFF8EE] px-6 py-8 md:px-10 lg:px-16">
@@ -82,7 +104,40 @@ const IssueDetails = () => {
                             )}
                         </div>
 
-                        {canManage && (
+                        {issue.claimedBy && (
+                            <div className="mt-8 border-t-2 border-black pt-6">
+                                <h2 className="text-sm font-black uppercase tracking-wide">Claimed by</h2>
+                                <p className="mt-2 font-medium">{issue.claimedBy.name}</p>
+                            </div>
+                        )}
+
+                        {issue.status === "completed" && (
+                            <div className="mt-8 border-t-2 border-black pt-6">
+                                <h2 className="text-sm font-black uppercase tracking-wide">Completed contribution</h2>
+                                <p className="mt-2 font-medium">Verified by {issue.verifiedBy?.name || "a maintainer"}</p>
+                                {issue.completedAt && <p className="mt-1 text-sm text-gray-600">{new Date(issue.completedAt).toLocaleDateString()}</p>}
+                            </div>
+                        )}
+
+                        {user?.role === "student" && issue.status === "open" && (
+                            <button type="button" disabled={updating} onClick={() => handleIssueAction(claimIssue)} className="mt-8 rounded-xl border-2 border-black bg-[#FF6B6B] px-5 py-3 font-black shadow-[4px_4px_0px_#000] disabled:opacity-50">
+                                {updating ? "Claiming..." : "Claim Issue"}
+                            </button>
+                        )}
+
+                        {user?.role === "student" && issue.status === "claimed" && isClaimant && (
+                            <button type="button" disabled={updating} onClick={() => handleIssueAction(unclaimIssue)} className="mt-8 rounded-xl border-2 border-black bg-white px-5 py-3 font-black shadow-[4px_4px_0px_#000] disabled:opacity-50">
+                                {updating ? "Updating..." : "Withdraw Claim"}
+                            </button>
+                        )}
+
+                        {canManage && issue.status === "claimed" && (
+                            <button type="button" disabled={updating} onClick={handleComplete} className="mt-8 rounded-xl border-2 border-black bg-[#A7F3D0] px-5 py-3 font-black shadow-[4px_4px_0px_#000] disabled:opacity-50">
+                                {updating ? "Completing..." : "Mark Contribution Complete"}
+                            </button>
+                        )}
+
+                        {canEdit && (
                             <div className="mt-8 flex flex-wrap gap-3 border-t-2 border-black pt-6">
                                 <button type="button" onClick={() => navigate(`/projects/${projectId}/issues/${issueId}/edit`)} className="rounded-xl border-2 border-black bg-[#FFD166] px-5 py-2 font-black shadow-[3px_3px_0px_#000]">Edit Issue</button>
                                 <button type="button" disabled={deleting} onClick={handleDelete} className="rounded-xl border-2 border-black bg-white px-5 py-2 font-black shadow-[3px_3px_0px_#000] disabled:opacity-50">

@@ -66,6 +66,7 @@ const EditIssue = () => {
 
     const ownerId = project?.owner?._id || project?.owner
     const canManage = user?.role === "admin" || ownerId === user?._id
+    const canEdit = canManage && ["open", "closed"].includes(issue?.status)
 
     return (
         <div className="min-h-screen bg-[#FFF8EE] px-6 py-10 md:px-10 lg:px-16">
@@ -83,8 +84,9 @@ const EditIssue = () => {
                 {loading && <p className="font-bold">Loading issue...</p>}
                 {error && <div className="mb-6 rounded-xl border-2 border-black bg-[#FF6B6B] p-4 font-bold">{error}</div>}
                 {!loading && project && issue && !canManage && <p className="font-bold">You are not authorized to edit this issue.</p>}
+                {!loading && project && issue && canManage && !canEdit && <p className="font-bold">Claimed or completed issues cannot be edited.</p>}
 
-                {!loading && project && issue && canManage && (
+                {!loading && project && issue && canEdit && (
                     <form onSubmit={handleSubmit} className="rounded-3xl border-2 border-black bg-white p-6 shadow-[7px_7px_0px_#000] md:p-8">
                         <div className="mb-6">
                             <label htmlFor="title" className="mb-2 block text-sm font-black">Issue title</label>

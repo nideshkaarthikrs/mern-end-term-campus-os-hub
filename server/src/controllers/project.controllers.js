@@ -131,6 +131,10 @@ export const deleteProject = async (req, res) => {
         if (role !== "admin" && project.owner.toString() !== userId) {
             return res.status(403).json({ message: "You are not authorized to delete this project" })
         }
+        const activeOrCompletedIssue = await Issue.exists({ project: projectId, status: { $in: ["claimed", "completed"] } })
+        if (activeOrCompletedIssue) {
+            return res.status(409).json({ message: "Projects with claimed or completed issues cannot be deleted" })
+        }
         await Issue.deleteMany({ project: projectId })
         await Project.findByIdAndDelete(projectId)
         return res.status(200).json({ message: "Project deleted successfully" })

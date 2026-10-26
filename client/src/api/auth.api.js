@@ -21,6 +21,10 @@ export const getCurrentUser = () => {
     return api.get('/auth/me')
 }
 
+export const getMyContributions = () => {
+    return api.get('/auth/me/contributions')
+}
+
 export const logoutUser = () => {
     return api.post('/auth/logout')
 }

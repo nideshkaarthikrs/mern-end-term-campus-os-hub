@@ -19,3 +19,15 @@ export const updateIssue = (projectId, issueId, issueData) => {
 export const deleteIssue = (projectId, issueId) => {
     return api.delete(`/projects/${projectId}/issues/${issueId}`)
 }
+
+export const claimIssue = (projectId, issueId) => {
+    return api.post(`/projects/${projectId}/issues/${issueId}/claim`)
+}
+
+export const unclaimIssue = (projectId, issueId) => {
+    return api.delete(`/projects/${projectId}/issues/${issueId}/claim`)
+}
+
+export const completeIssue = (projectId, issueId) => {
+    return api.post(`/projects/${projectId}/issues/${issueId}/complete`)
+}

@@ -2,6 +2,7 @@ import validator from 'validator'
 import User from '../models/user.model.js'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import Issue from '../models/issue.model.js'
 
 export const registrationController = async (req, res) => {
     try {
@@ -128,6 +129,23 @@ export const userController = async (req, res) => {
         return res.status(500).json({
             message: "Internal server error"
         })
+    }
+}
+
+export const getMyContributions = async (req, res) => {
+    try {
+        const contributions = await Issue.find({ claimedBy: req.user.userId, status: "completed" })
+            .populate("project", "name")
+            .populate("verifiedBy", "name")
+            .sort({ completedAt: -1 })
+        const projects = new Set(contributions.map(issue => issue.project?._id?.toString()).filter(Boolean))
+        return res.status(200).json({
+            contributionCount: contributions.length,
+            projectCount: projects.size,
+            contributions
+        })
+    } catch (error) {
+        return res.status(500).json({ message: "Internal server error" })
     }
 }
 

@@ -11,6 +11,7 @@ import EditProject from "./pages/EditProject.jsx"
 import CreateIssue from "./pages/CreateIssue.jsx"
 import IssueDetails from "./pages/IssueDetails.jsx"
 import EditIssue from "./pages/EditIssue.jsx"
+import Contributions from "./pages/Contributions.jsx"
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
             {/* Protected Routes */}
             <Route element={<ProtectedRoute />} >
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/contributions" element={<Contributions />} />
               <Route path="/projects" element={<Projects />} />
               <Route path="/create-project" element={<CreateProject />} />
               <Route path="/projects/:projectId" element={<ProjectDetails />} />

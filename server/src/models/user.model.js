@@ -43,7 +43,7 @@ const userSchema = new Schema(
 
     completedContributions: {
       type: [Schema.Types.ObjectId],
-      ref: 'Contribution'
+      ref: 'Issue'
     }
   },
   {

@@ -87,6 +87,10 @@ const Dashboard = () => {
                                 </p>
                             </div>
                         </div>
+
+                        <button type="button" onClick={() => navigate('/contributions')} className="mt-6 rounded-xl border-2 border-black bg-[#FFD166] px-4 py-2 font-black shadow-[3px_3px_0px_#000]">
+                            View contribution history →
+                        </button>
                     </div>
 
                     {/* Coming Soon Card */}

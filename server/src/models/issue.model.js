@@ -28,8 +28,20 @@ const issueSchema = new Schema(
         },
         status: {
             type: String,
-            enum: ['open', 'closed'],
+            enum: ['open', 'claimed', 'completed', 'closed'],
             default: 'open'
+        },
+        claimedBy: {
+            type: Schema.Types.ObjectId,
+            ref: 'User',
+            default: null
+        },
+        claimedAt: Date,
+        completedAt: Date,
+        verifiedBy: {
+            type: Schema.Types.ObjectId,
+            ref: 'User',
+            default: null
         }
     },
     {
