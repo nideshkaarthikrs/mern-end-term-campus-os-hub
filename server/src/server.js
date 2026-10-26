@@ -3,6 +3,7 @@ import dotenv from 'dotenv'
 import connectDB from './config/db.js'
 import authRouter from './routes/auth.routes.js';
 import projectRouter from './routes/project.routes.js';
+import { allIssueRouter } from './routes/issue.routes.js';
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 
@@ -26,6 +27,7 @@ app.use(cookieParser())
 
 app.use('/api/auth', authRouter)
 app.use('/api/projects', projectRouter)
+app.use('/api/issues', allIssueRouter)
 
 app.get("/api/health", (req, res) => {
   res.json({ message: "Campus Open-Source Hub API is running" });

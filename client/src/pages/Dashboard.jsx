@@ -1,4 +1,4 @@
-import { useContext } from "react"
+import { useContext, useState } from "react"
 import { AuthContext } from "../context/AuthContext.jsx"
 import { useNavigate } from "react-router-dom"
 
@@ -6,10 +6,16 @@ const Dashboard = () => {
 
     const { user, logout } = useContext(AuthContext)
     const navigate = useNavigate()
+    const [logoutError, setLogoutError] = useState("")
 
     async function handleLogout() {
-        await logout()
-        navigate('/login')
+        try {
+            setLogoutError("")
+            await logout()
+            navigate('/login')
+        } catch (error) {
+            setLogoutError(error.response?.data?.message || "Failed to log out. Please try again.")
+        }
     }
 
     return (
@@ -27,13 +33,18 @@ const Dashboard = () => {
                     </span>
                 </div>
 
-                <button
-                    onClick={handleLogout}
-                    className="rounded-xl border-2 border-black bg-white px-4 py-2.5 font-black text-gray-900 shadow-[3px_3px_0px_#000] transition hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_#000] active:translate-y-1 active:shadow-[1px_1px_0px_#000]"
-                >
-                    Logout
-                </button>
+                <div className="flex flex-wrap gap-3">
+                    <button type="button" onClick={() => navigate('/profile')} className="rounded-xl border-2 border-black bg-[#FFD166] px-4 py-2.5 font-black shadow-[3px_3px_0px_#000]">Profile</button>
+                    <button
+                        onClick={handleLogout}
+                        className="rounded-xl border-2 border-black bg-white px-4 py-2.5 font-black text-gray-900 shadow-[3px_3px_0px_#000] transition hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_#000] active:translate-y-1 active:shadow-[1px_1px_0px_#000]"
+                    >
+                        Logout
+                    </button>
+                </div>
             </nav>
+
+            {logoutError && <div className="mx-auto mt-6 max-w-6xl rounded-xl border-2 border-black bg-[#FF6B6B] p-4 font-bold">{logoutError}</div>}
 
             {/* Main Content */}
             <main className="mx-auto mt-12 max-w-6xl">
@@ -108,9 +119,10 @@ const Dashboard = () => {
                             contributing to.
                         </p>
 
-                        <button onClick={() => navigate('/projects')} className="mt-6 inline-block rounded-xl border-2 border-black bg-white px-4 py-2 text-sm font-black text-gray-900">
-                            Explore projects →
-                        </button>
+                        <div className="mt-6 flex flex-wrap gap-3">
+                            <button onClick={() => navigate('/projects')} className="rounded-xl border-2 border-black bg-white px-4 py-2 text-sm font-black text-gray-900">Explore projects →</button>
+                            <button onClick={() => navigate('/issues')} className="rounded-xl border-2 border-black bg-[#FFD166] px-4 py-2 text-sm font-black text-gray-900">Browse issues →</button>
+                        </div>
                     </div>
 
                 </div>

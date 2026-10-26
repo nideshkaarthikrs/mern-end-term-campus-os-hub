@@ -4,6 +4,10 @@ export const getIssues = (projectId) => {
     return api.get(`/projects/${projectId}/issues`)
 }
 
+export const getAllIssues = () => {
+    return api.get('/issues')
+}
+
 export const createIssue = (projectId, issueData) => {
     return api.post(`/projects/${projectId}/issues`, issueData)
 }

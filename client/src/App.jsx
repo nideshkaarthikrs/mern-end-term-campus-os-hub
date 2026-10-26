@@ -12,16 +12,21 @@ import CreateIssue from "./pages/CreateIssue.jsx"
 import IssueDetails from "./pages/IssueDetails.jsx"
 import EditIssue from "./pages/EditIssue.jsx"
 import Contributions from "./pages/Contributions.jsx"
+import Landing from "./pages/Landing.jsx"
+import IssueDiscovery from "./pages/IssueDiscovery.jsx"
+import Profile from "./pages/Profile.jsx"
 
 function App() {
   return (
     <AuthContextProvider>
       <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/" element={<Landing />} />
             {/* Protected Routes */}
             <Route element={<ProtectedRoute />} >
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/issues" element={<IssueDiscovery />} />
               <Route path="/contributions" element={<Contributions />} />
               <Route path="/projects" element={<Projects />} />
               <Route path="/create-project" element={<CreateProject />} />
@@ -34,6 +39,7 @@ function App() {
             {/* Public Routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
       </BrowserRouter>
     </AuthContextProvider>

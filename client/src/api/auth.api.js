@@ -21,6 +21,10 @@ export const getCurrentUser = () => {
     return api.get('/auth/me')
 }
 
+export const updateUser = (profileData) => {
+    return api.put('/auth/me', profileData)
+}
+
 export const getMyContributions = () => {
     return api.get('/auth/me/contributions')
 }

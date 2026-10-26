@@ -1,9 +1,12 @@
 import express from 'express'
-import { createIssue, getIssues, getIssueDetails, updateIssue, deleteIssue, claimIssue, unclaimIssue, completeIssue } from '../controllers/issue.controllers.js'
+import { createIssue, getIssues, getAllIssues, getIssueDetails, updateIssue, deleteIssue, claimIssue, unclaimIssue, completeIssue } from '../controllers/issue.controllers.js'
 import { authMiddleware } from '../middlewares/auth.middleware.js'
 import { requireRole } from '../middlewares/role.middleware.js'
 
 const issueRouter = express.Router({ mergeParams: true })
+export const allIssueRouter = express.Router()
+
+allIssueRouter.get('/', authMiddleware, getAllIssues)
 
 issueRouter.get('/', authMiddleware, getIssues)
 issueRouter.post('/', authMiddleware, requireRole("admin", "maintainer"), createIssue)

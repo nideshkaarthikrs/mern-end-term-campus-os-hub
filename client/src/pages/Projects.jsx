@@ -60,6 +60,8 @@ const Projects = () => {
                     }
                 </div>
 
+                <button type="button" onClick={() => navigate('/issues')} className="mb-8 font-black hover:underline">Browse all issues →</button>
+
                 {/* Loading */}
                 {loading && (
                     <div className="flex min-h-[300px] items-center justify-center">

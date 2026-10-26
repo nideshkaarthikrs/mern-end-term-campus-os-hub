@@ -13,8 +13,11 @@ const Login = () => {
         email: "",
         password: ""
     })
+    const [error, setError] = useState("")
+    const [submitting, setSubmitting] = useState(false)
 
     function handleUserDataChange(e) {
+        setError("")
         setUserData((prevUserdata) => {
             return {
                 ...prevUserdata,
@@ -25,24 +28,26 @@ const Login = () => {
 
     async function handleSubmit(e) {
         e.preventDefault()
+        setError("")
 
         // Data validation
         if (!userData.email || !userData.password) {
-            alert("Please fill in all fields")
+            setError("Please fill in all fields")
             return
         }
 
         if (!isEmail(userData.email)) {
-            alert("Please enter a valid email address")
+            setError("Please enter a valid email address")
             return
         }
 
         if (userData.password.length < 8) {
-            alert("Password must be at least 8 characters long")
+            setError("Password must be at least 8 characters long")
             return
         }
 
         try {
+            setSubmitting(true)
             await login(userData.email, userData.password)
 
             setUserData({
@@ -51,7 +56,9 @@ const Login = () => {
             })
             navigate('/dashboard')
         } catch (error) {
-            alert(error.response?.data?.message || "Login failed")
+            setError(error.response?.data?.message || "Login failed")
+        } finally {
+            setSubmitting(false)
         }
     }
 
@@ -77,6 +84,8 @@ const Login = () => {
                 {/* Form Card */}
                 <div className="rounded-3xl border-2 border-black bg-white p-7 shadow-[7px_7px_0px_#000]">
                     <form onSubmit={handleSubmit} className="space-y-5">
+
+                        {error && <div className="rounded-xl border-2 border-black bg-[#FF6B6B] p-4 font-bold">{error}</div>}
 
                         {/* Email */}
                         <div>
@@ -121,9 +130,10 @@ const Login = () => {
                         {/* Submit */}
                         <button
                             type="submit"
-                            className="w-full rounded-xl border-2 border-black bg-[#FF6B6B] px-4 py-3.5 font-black text-white shadow-[4px_4px_0px_#000] transition hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_#000] active:translate-y-1 active:shadow-[2px_2px_0px_#000]"
+                            disabled={submitting}
+                            className="w-full rounded-xl border-2 border-black bg-[#FF6B6B] px-4 py-3.5 font-black text-white shadow-[4px_4px_0px_#000] transition hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_#000] active:translate-y-1 active:shadow-[2px_2px_0px_#000] disabled:opacity-50"
                         >
-                            Log In 🚀
+                            {submitting ? "Logging in..." : "Log In 🚀"}
                         </button>
 
                     </form>
@@ -135,6 +145,8 @@ const Login = () => {
                         Create an account
                     </button>
                 </p>
+
+                <button type="button" onClick={() => navigate('/')} className="mt-4 block w-full text-center font-black hover:underline">← Home</button>
 
             </div>
         </div>

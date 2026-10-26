@@ -70,6 +70,17 @@ export const getIssues = async (req, res) => {
     }
 }
 
+export const getAllIssues = async (req, res) => {
+    try {
+        const issues = await Issue.find()
+            .populate("project", "name techStack")
+            .sort({ createdAt: -1 })
+        return res.status(200).json({ issues })
+    } catch (error) {
+        return res.status(500).json({ message: "Internal server error" })
+    }
+}
+
 export const getIssueDetails = async (req, res) => {
     try {
         const project = await getProject(req.params.projectId, res)

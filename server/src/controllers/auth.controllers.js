@@ -132,6 +132,29 @@ export const userController = async (req, res) => {
     }
 }
 
+export const updateUserController = async (req, res) => {
+    try {
+        const { name, bio, skills } = req.body || {}
+        if (typeof name !== "string" || !name.trim() ||
+            typeof bio !== "string" ||
+            !Array.isArray(skills) ||
+            !skills.every(skill => typeof skill === "string" && skill.trim())) {
+            return res.status(400).json({ message: "Enter a name, bio, and valid skills" })
+        }
+        const user = await User.findByIdAndUpdate(
+            req.user.userId,
+            { name: name.trim(), bio: bio.trim(), skills: skills.map(skill => skill.trim()) },
+            { returnDocument: "after", runValidators: true }
+        ).select("-password")
+        if (!user) {
+            return res.status(404).json({ message: "User not found" })
+        }
+        return res.status(200).json(user)
+    } catch (error) {
+        return res.status(500).json({ message: "Internal server error" })
+    }
+}
+
 export const getMyContributions = async (req, res) => {
     try {
         const contributions = await Issue.find({ claimedBy: req.user.userId, status: "completed" })

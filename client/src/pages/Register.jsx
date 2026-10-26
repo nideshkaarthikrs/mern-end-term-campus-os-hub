@@ -6,12 +6,15 @@ import { AuthContext } from '../context/AuthContext.jsx'
 const Register = () => {
 
     const [userData, setUserData] = useState({name:"", email:"", password:"", role:"student"})
+    const [error, setError] = useState("")
+    const [submitting, setSubmitting] = useState(false)
 
     const { register } = useContext(AuthContext)
 
     const navigate = useNavigate()
 
     function handleUserDataChange(e) {
+        setError("")
         setUserData((prevUserdata) => {
             return {...prevUserdata, [e.target.name]: e.target.value}
         })
@@ -19,35 +22,39 @@ const Register = () => {
 
     async function handleSubmit(e) {
         e.preventDefault()
+        setError("")
         // Data validation
         if (!userData.name || !userData.email || !userData.password) {
-            alert("Please fill in all fields")
+            setError("Please fill in all fields")
             return
         }
 
         if (userData.name.trim() === "") {
-            alert("Name cannot be empty")
+            setError("Name cannot be empty")
             return
         }
 
         if (!isEmail(userData.email)) {
-            alert("Please enter a valid email address")
+            setError("Please enter a valid email address")
             return
         }
 
         if (userData.password.length<8) {
-            alert("Password must be at least 8 characters long")
+            setError("Password must be at least 8 characters long")
             return
         }
 
 
         try {
+         setSubmitting(true)
         // API call
          await register(userData.name, userData.email, userData.password, userData.role)
          setUserData({name:"", email:"", password:"", role:"student"})
          navigate('/dashboard')
         }catch   (error) {
-            alert(error.response?.data?.message || "Registration failed")
+            setError(error.response?.data?.message || "Registration failed")
+        } finally {
+            setSubmitting(false)
         }
 
     }
@@ -74,6 +81,8 @@ const Register = () => {
       {/* Form Card */}
       <div className="rounded-3xl border-2 border-black bg-white p-7 shadow-[7px_7px_0px_#000]">
         <form onSubmit={handleSubmit} className="space-y-5">
+
+          {error && <div className="rounded-xl border-2 border-black bg-[#FF6B6B] p-4 font-bold">{error}</div>}
 
           {/* Name */}
           <div>
@@ -154,9 +163,10 @@ const Register = () => {
 
           <button
             type="submit"
-            className="w-full rounded-xl border-2 border-black bg-[#FF6B6B] px-4 py-3.5 font-black text-white shadow-[4px_4px_0px_#000] transition hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_#000] active:translate-y-1 active:shadow-[2px_2px_0px_#000]"
+            disabled={submitting}
+            className="w-full rounded-xl border-2 border-black bg-[#FF6B6B] px-4 py-3.5 font-black text-white shadow-[4px_4px_0px_#000] transition hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_#000] active:translate-y-1 active:shadow-[2px_2px_0px_#000] disabled:opacity-50"
           >
-            Create Account 🚀
+            {submitting ? "Creating account..." : "Create Account 🚀"}
           </button>
 
         </form>
@@ -168,6 +178,8 @@ const Register = () => {
           Log in
         </button>
       </p>
+
+      <button type="button" onClick={() => navigate('/')} className="mt-4 block w-full text-center font-black hover:underline">← Home</button>
 
     </div>
   </div>
