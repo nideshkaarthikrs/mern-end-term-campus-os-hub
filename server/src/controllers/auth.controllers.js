@@ -4,9 +4,15 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import Issue from '../models/issue.model.js'
 
+const getCookieOptions = () => ({
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax"
+})
+
 export const registrationController = async (req, res) => {
     try {
-        const { name, email, password, role } = req.body
+        const { name, email, password, role } = req.body || {}
 
         // Validation
         if (!name || !email || !password) {
@@ -16,7 +22,9 @@ export const registrationController = async (req, res) => {
             return res.status(400).json({message: "Bad request"})
         }
         const normalizedEmail = email.toLowerCase().trim()
-        if (name.trim()==="" || !validator.isEmail(normalizedEmail) || password.length<8 || (role && !["student", "maintainer"].includes(role))) {
+        if (name.trim()==="" || name.length > 100 || !validator.isEmail(normalizedEmail) ||
+            password.length < 8 || Buffer.byteLength(password, "utf8") > 72 ||
+            (role !== undefined && !["student", "maintainer"].includes(role))) {
             return res.status(400).json({message: "Bad request"})
         }
         const userWithDuplicateEmail = await User.findOne({ email: normalizedEmail })
@@ -29,7 +37,7 @@ export const registrationController = async (req, res) => {
 
         // Creating new user 
         const newUser = await User.create({
-            name: name,
+            name: name.trim(),
             email: normalizedEmail,
             password: hashedPassword,
             role: role || "student"
@@ -39,23 +47,18 @@ export const registrationController = async (req, res) => {
 
         const jwtPayload = {
             userId: newUser._id,
-            role: newUser.role
         }
         const token = jwt.sign(jwtPayload, process.env.JWT_SECRET, {expiresIn: "7d"})
 
-        const cookieOptions = {
-            httpOnly: true,
-            secure: false,
-            sameSite: "lax",
-            maxAge: 7 * 24 * 60 * 60 * 1000
-        }
-
-        res.cookie("token", token, cookieOptions)
+        res.cookie("token", token, { ...getCookieOptions(), maxAge: 7 * 24 * 60 * 60 * 1000 })
 
         return res.status(201).json({
             message: "User registered successfully"
         })
     } catch (error) {
+        if (error.code === 11000) {
+            return res.status(409).json({ message: "Email already exists" })
+        }
         return res.status(500).json({message: "Internal server error"})
     }
 }
@@ -63,7 +66,7 @@ export const registrationController = async (req, res) => {
 
 export const loginController = async (req, res) => {
     try {
-        const { email, password } = req.body
+        const { email, password } = req.body || {}
         // Validation
         if (!email || !password) {
             return res.status(400).send({message: "All fields are required"})
@@ -72,12 +75,12 @@ export const loginController = async (req, res) => {
             return res.status(400).json({message: "Bad request"})
         }
         const normalizedEmail = email.toLowerCase().trim()
-        if (!validator.isEmail(normalizedEmail) || password.length<8) {
+        if (!validator.isEmail(normalizedEmail) || password.length < 8 || Buffer.byteLength(password, "utf8") > 72) {
             return res.status(400).json({message: "Bad request"})
         }
 
         // Querying the DB
-        const user = await User.findOne({email: normalizedEmail})
+        const user = await User.findOne({email: normalizedEmail}).select("+password")
         if (!user) {
             return res.status(401).json({message: "Invalid email or password"})
         }
@@ -93,18 +96,10 @@ export const loginController = async (req, res) => {
 
         const jwtPayload = {
             userId: user._id,
-            role: user.role
         }
         const token = jwt.sign(jwtPayload, process.env.JWT_SECRET, {expiresIn: "7d"})
 
-        const cookieOptions = {
-            httpOnly: true,
-            secure: false,
-            sameSite: "lax",
-            maxAge: 7 * 24 * 60 * 60 * 1000
-        }
-
-        res.cookie("token", token, cookieOptions)
+        res.cookie("token", token, { ...getCookieOptions(), maxAge: 7 * 24 * 60 * 60 * 1000 })
 
         return res.status(200).json({ message: 'Login successful!' });
 
@@ -135,10 +130,10 @@ export const userController = async (req, res) => {
 export const updateUserController = async (req, res) => {
     try {
         const { name, bio, skills } = req.body || {}
-        if (typeof name !== "string" || !name.trim() ||
-            typeof bio !== "string" ||
-            !Array.isArray(skills) ||
-            !skills.every(skill => typeof skill === "string" && skill.trim())) {
+        if (typeof name !== "string" || !name.trim() || name.length > 100 ||
+            typeof bio !== "string" || bio.length > 1000 ||
+            !Array.isArray(skills) || skills.length > 20 ||
+            !skills.every(skill => typeof skill === "string" && skill.trim() && skill.length <= 50)) {
             return res.status(400).json({ message: "Enter a name, bio, and valid skills" })
         }
         const user = await User.findByIdAndUpdate(
@@ -174,7 +169,7 @@ export const getMyContributions = async (req, res) => {
 
 export const logoutController = (req, res) => {
     try {
-        res.clearCookie("token")
+        res.clearCookie("token", getCookieOptions())
         return res.status(200).json({
             message: "Logged out successfully"
         })        

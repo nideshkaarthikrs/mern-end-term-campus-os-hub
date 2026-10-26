@@ -13,11 +13,13 @@ const app = express();
 
 const PORT = process.env.PORT || 5005;
 
-connectDB()
+if (!process.env.JWT_SECRET || !process.env.MONGO_URI) {
+  throw new Error("JWT_SECRET and MONGO_URI are required")
+}
 
 // Middlewares
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: process.env.CLIENT_URL || "http://localhost:5173",
   credentials: true
 }))
 app.use(express.json())
@@ -33,6 +35,11 @@ app.get("/api/health", (req, res) => {
   res.json({ message: "Campus Open-Source Hub API is running" });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+const startServer = async () => {
+  await connectDB()
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+
+startServer()

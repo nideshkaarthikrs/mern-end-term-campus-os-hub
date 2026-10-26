@@ -7,11 +7,11 @@ const escapeRegex = value => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
 
 const getIssueData = (body, includeStatus = false) => {
     const { title, description, difficulty, requiredSkills, status } = body || {}
-    if (typeof title !== "string" || !title.trim() ||
-        typeof description !== "string" || !description.trim() ||
+    if (typeof title !== "string" || !title.trim() || title.length > 160 ||
+        typeof description !== "string" || !description.trim() || description.length > 5000 ||
         !["beginner", "intermediate", "advanced"].includes(difficulty) ||
-        !Array.isArray(requiredSkills) ||
-        !requiredSkills.every(skill => typeof skill === "string" && skill.trim()) ||
+        !Array.isArray(requiredSkills) || requiredSkills.length > 20 ||
+        !requiredSkills.every(skill => typeof skill === "string" && skill.trim() && skill.length <= 50) ||
         (includeStatus && !["open", "closed"].includes(status))) {
         return null
     }

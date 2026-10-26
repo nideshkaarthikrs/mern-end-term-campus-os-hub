@@ -7,11 +7,12 @@ const escapeRegex = value => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
 
 const getProjectData = (body) => {
     const { name, description, repositoryUrl, techStack } = body || {}
-    if (typeof name !== "string" || !name.trim() ||
-        typeof description !== "string" || !description.trim() ||
-        typeof repositoryUrl !== "string" || !validator.isURL(repositoryUrl.trim(), { require_protocol: true, protocols: ["http", "https"] }) ||
-        !Array.isArray(techStack) || !techStack.length ||
-        !techStack.every(tech => typeof tech === "string" && tech.trim())) {
+    if (typeof name !== "string" || !name.trim() || name.length > 100 ||
+        typeof description !== "string" || !description.trim() || description.length > 5000 ||
+        typeof repositoryUrl !== "string" || repositoryUrl.length > 2048 ||
+        !validator.isURL(repositoryUrl.trim(), { require_protocol: true, protocols: ["http", "https"] }) ||
+        !Array.isArray(techStack) || !techStack.length || techStack.length > 20 ||
+        !techStack.every(tech => typeof tech === "string" && tech.trim() && tech.length <= 50)) {
         return null
     }
     return {
