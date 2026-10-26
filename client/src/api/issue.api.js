@@ -4,8 +4,8 @@ export const getIssues = (projectId) => {
     return api.get(`/projects/${projectId}/issues`)
 }
 
-export const getAllIssues = () => {
-    return api.get('/issues')
+export const getAllIssues = (filters = {}) => {
+    return api.get('/issues', { params: filters })
 }
 
 export const createIssue = (projectId, issueData) => {

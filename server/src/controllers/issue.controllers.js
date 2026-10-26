@@ -3,6 +3,8 @@ import Issue from "../models/issue.model.js"
 import Project from "../models/project.model.js"
 import User from "../models/user.model.js"
 
+const escapeRegex = value => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+
 const getIssueData = (body, includeStatus = false) => {
     const { title, description, difficulty, requiredSkills, status } = body || {}
     if (typeof title !== "string" || !title.trim() ||
@@ -72,7 +74,31 @@ export const getIssues = async (req, res) => {
 
 export const getAllIssues = async (req, res) => {
     try {
-        const issues = await Issue.find()
+        const { search, technology, difficulty, skill, status } = req.query
+        if ([search, technology, difficulty, skill, status].some(value => value !== undefined && (typeof value !== "string" || value.length > 100)) ||
+            (difficulty && !["beginner", "intermediate", "advanced"].includes(difficulty)) ||
+            (status && !["open", "claimed", "completed", "closed"].includes(status))) {
+            return res.status(400).json({ message: "Invalid search filters" })
+        }
+
+        const filters = {}
+        if (difficulty) filters.difficulty = difficulty
+        if (status) filters.status = status
+        if (skill?.trim()) filters.requiredSkills = new RegExp(`^${escapeRegex(skill.trim())}$`, "i")
+        if (technology?.trim()) {
+            filters.project = { $in: await Project.distinct("_id", {
+                techStack: new RegExp(`^${escapeRegex(technology.trim())}$`, "i")
+            }) }
+        }
+        if (search?.trim()) {
+            const keyword = new RegExp(escapeRegex(search.trim()), "i")
+            const projectIds = await Project.distinct("_id", {
+                $or: [{ name: keyword }, { description: keyword }]
+            })
+            filters.$or = [{ title: keyword }, { description: keyword }, { project: { $in: projectIds } }]
+        }
+
+        const issues = await Issue.find(filters)
             .populate("project", "name techStack")
             .sort({ createdAt: -1 })
         return res.status(200).json({ issues })

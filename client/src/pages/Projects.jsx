@@ -3,29 +3,50 @@ import { getProjects } from '../api/project.api.js'
 import { AuthContext } from '../context/AuthContext.jsx'
 import { useNavigate } from 'react-router-dom'
 
+const emptyFilters = { search: "", technology: "" }
+
 const Projects = () => {
 
     const [projects, setProjects] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
+    const [filters, setFilters] = useState(emptyFilters)
+    const [appliedFilters, setAppliedFilters] = useState(emptyFilters)
+    const hasFilters = Object.values(appliedFilters).some(value => value.trim())
     const { user } = useContext(AuthContext)
     const navigate = useNavigate()
 
     useEffect(() => {
+        let active = true
         async function fetchProjects() {
             try {
-                const axiosResponse = await getProjects()
-                setProjects(axiosResponse.data.projects)
+                const axiosResponse = await getProjects(appliedFilters)
+                if (active) setProjects(axiosResponse.data.projects)
             } catch (error) {
-                setError(
+                if (active) setError(
                     error.response?.data?.message || "Failed to load projects. Please try again."
                 )
             }finally {
-                setLoading(false)
+                if (active) setLoading(false)
             }
         }
         fetchProjects()
-    }, [])
+        return () => { active = false }
+    }, [appliedFilters])
+
+    const applyFilters = event => {
+        event.preventDefault()
+        setError("")
+        setLoading(true)
+        setAppliedFilters({ ...filters })
+    }
+
+    const clearFilters = () => {
+        setFilters(emptyFilters)
+        setError("")
+        setLoading(true)
+        setAppliedFilters({ ...emptyFilters })
+    }
 
     return (
         <div className="min-h-screen bg-[#FFF8EE] px-6 py-8 md:px-10 lg:px-16">
@@ -62,6 +83,21 @@ const Projects = () => {
 
                 <button type="button" onClick={() => navigate('/issues')} className="mb-8 font-black hover:underline">Browse all issues →</button>
 
+                <form onSubmit={applyFilters} className="mb-8 rounded-2xl border-2 border-black bg-white p-5 shadow-[5px_5px_0px_#000]">
+                    <div className="grid gap-4 sm:grid-cols-2">
+                        <label className="text-sm font-black">Search projects
+                            <input type="search" value={filters.search} onChange={event => setFilters({ ...filters, search: event.target.value })} placeholder="Name or description" maxLength={100} className="mt-2 w-full rounded-xl border-2 border-black px-3 py-2 font-medium" />
+                        </label>
+                        <label className="text-sm font-black">Technology
+                            <input type="search" value={filters.technology} onChange={event => setFilters({ ...filters, technology: event.target.value })} placeholder="e.g. React" maxLength={100} className="mt-2 w-full rounded-xl border-2 border-black px-3 py-2 font-medium" />
+                        </label>
+                    </div>
+                    <div className="mt-5 flex flex-wrap gap-3">
+                        <button type="submit" className="rounded-xl border-2 border-black bg-[#FFD166] px-5 py-2 font-black shadow-[3px_3px_0px_#000]">Find projects</button>
+                        <button type="button" onClick={clearFilters} className="rounded-xl border-2 border-black bg-white px-5 py-2 font-black">Clear filters</button>
+                    </div>
+                </form>
+
                 {/* Loading */}
                 {loading && (
                     <div className="flex min-h-[300px] items-center justify-center">
@@ -91,15 +127,14 @@ const Projects = () => {
                         </div>
 
                         <h2 className="text-2xl font-black">
-                            No projects yet
+                            {hasFilters ? "No matching projects" : "No projects yet"}
                         </h2>
 
                         <p className="mx-auto mt-2 max-w-md font-medium text-gray-600">
-                            There aren't any open-source projects here yet.
-                            Be the one to start something.
+                            {hasFilters ? "Try a different keyword or technology." : "There aren't any open-source projects here yet. Be the one to start something."}
                         </p>
 
-                        {(user?.role === "admin" || user?.role === "maintainer") && (
+                        {!hasFilters && (user?.role === "admin" || user?.role === "maintainer") && (
                             <button onClick={() => navigate('/create-project')}>
                                 Create the first project
                             </button>
@@ -109,7 +144,7 @@ const Projects = () => {
                 }
 
                 {/* Project Grid */}
-                <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
+                {!loading && !error && <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
 
                     {/* Rendering all projects using map() */}
                     {
@@ -173,7 +208,7 @@ const Projects = () => {
                         })
                     }
 
-                </div>
+                </div>}
             </div>
         </div>
     )

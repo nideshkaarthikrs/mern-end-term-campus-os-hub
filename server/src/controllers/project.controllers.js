@@ -3,6 +3,8 @@ import mongoose from "mongoose"
 import validator from "validator"
 import Issue from "../models/issue.model.js"
 
+const escapeRegex = value => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+
 const getProjectData = (body) => {
     const { name, description, repositoryUrl, techStack } = body || {}
     if (typeof name !== "string" || !name.trim() ||
@@ -43,7 +45,21 @@ export const createProject = async (req, res) => {
 
 export const getProjects = async (req, res) => {
     try {
-        const allProjects = await Project.find().populate("owner", "name")
+        const { search, technology } = req.query
+        if ([search, technology].some(value => value !== undefined && (typeof value !== "string" || value.length > 100))) {
+            return res.status(400).json({ message: "Invalid search filters" })
+        }
+
+        const filters = {}
+        if (search?.trim()) {
+            const keyword = new RegExp(escapeRegex(search.trim()), "i")
+            filters.$or = [{ name: keyword }, { description: keyword }]
+        }
+        if (technology?.trim()) {
+            filters.techStack = new RegExp(`^${escapeRegex(technology.trim())}$`, "i")
+        }
+
+        const allProjects = await Project.find(filters).populate("owner", "name")
         return res.status(200).json({projects: allProjects})
     } catch (error) {
         return res.status(500).json({

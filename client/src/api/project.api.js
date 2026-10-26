@@ -1,7 +1,7 @@
 import api from "./api.js";
 
-export const getProjects = () => {
-    return api.get('/projects')
+export const getProjects = (filters = {}) => {
+    return api.get('/projects', { params: filters })
 }
 
 export const createProject = (projectData) => {
