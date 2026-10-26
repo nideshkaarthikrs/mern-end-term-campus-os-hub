@@ -5,14 +5,17 @@ import jwt from 'jsonwebtoken'
 
 export const registrationController = async (req, res) => {
     try {
-        const { name, email, password } = req.body
-        const normalizedEmail = email.toLowerCase()
+        const { name, email, password, role } = req.body
 
         // Validation
-        if (!name || !normalizedEmail || !password) {
+        if (!name || !email || !password) {
             return res.status(400).send({message: "All fields are required"})
         }
-        if (name.trim()==="" || !validator.isEmail(normalizedEmail) || password.length<8) {
+        if (typeof name !== "string" || typeof email !== "string" || typeof password !== "string") {
+            return res.status(400).json({message: "Bad request"})
+        }
+        const normalizedEmail = email.toLowerCase().trim()
+        if (name.trim()==="" || !validator.isEmail(normalizedEmail) || password.length<8 || (role && !["student", "maintainer"].includes(role))) {
             return res.status(400).json({message: "Bad request"})
         }
         const userWithDuplicateEmail = await User.findOne({ email: normalizedEmail })
@@ -27,7 +30,8 @@ export const registrationController = async (req, res) => {
         const newUser = await User.create({
             name: name,
             email: normalizedEmail,
-            password: hashedPassword
+            password: hashedPassword,
+            role: role || "student"
         })
 
         // JWT and Cookies
@@ -59,11 +63,14 @@ export const registrationController = async (req, res) => {
 export const loginController = async (req, res) => {
     try {
         const { email, password } = req.body
-        const normalizedEmail = email.toLowerCase()
         // Validation
-        if (!normalizedEmail || !password) {
+        if (!email || !password) {
             return res.status(400).send({message: "All fields are required"})
         }
+        if (typeof email !== "string" || typeof password !== "string") {
+            return res.status(400).json({message: "Bad request"})
+        }
+        const normalizedEmail = email.toLowerCase().trim()
         if (!validator.isEmail(normalizedEmail) || password.length<8) {
             return res.status(400).json({message: "Bad request"})
         }

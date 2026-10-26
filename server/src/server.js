@@ -2,7 +2,9 @@ import express from 'express'
 import dotenv from 'dotenv'
 import connectDB from './config/db.js'
 import authRouter from './routes/auth.routes.js';
+import projectRouter from './routes/project.routes.js';
 import cookieParser from 'cookie-parser'
+import cors from 'cors'
 
 dotenv.config()
 
@@ -13,12 +15,17 @@ const PORT = process.env.PORT || 5005;
 connectDB()
 
 // Middlewares
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true
+}))
 app.use(express.json())
 app.use(cookieParser())
 
 // Routes
 
 app.use('/api/auth', authRouter)
+app.use('/api/projects', projectRouter)
 
 app.get("/api/health", (req, res) => {
   res.json({ message: "Campus Open-Source Hub API is running" });
