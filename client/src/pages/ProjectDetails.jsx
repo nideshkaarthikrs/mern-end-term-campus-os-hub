@@ -1,12 +1,14 @@
 import { useContext, useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { deleteProject, getProjectDetails } from "../api/project.api.js"
+import { getIssues } from "../api/issue.api.js"
 import { AuthContext } from "../context/AuthContext.jsx"
 
 const ProjectDetails = () => {
 
     const { projectId } = useParams()
     const [project, setProject] = useState(null)
+    const [issues, setIssues] = useState([])
     const [loading, setLoading] = useState(true)
     const [deleting, setDeleting] = useState(false)
     const [error, setError] = useState("")
@@ -16,8 +18,11 @@ const ProjectDetails = () => {
     useEffect(() => {
         async function fetchProjectDetails() {
             try {
-                const details = await getProjectDetails(projectId)
-                setProject(details.data)
+                const [projectResponse, issuesResponse] = await Promise.all([
+                    getProjectDetails(projectId), getIssues(projectId)
+                ])
+                setProject(projectResponse.data)
+                setIssues(issuesResponse.data.issues)
             } catch (error) {
                 setError(
                     error.response?.data?.message || "Failed to load the project. Please try again."
@@ -161,20 +166,47 @@ const ProjectDetails = () => {
                                     CONTRIBUTE
                                 </div>
 
-                                <h2 className="text-3xl font-black">
-                                    Open Issues
-                                </h2>
+                                <h2 className="text-3xl font-black">Issues</h2>
 
                                 <p className="mt-2 font-medium text-gray-600">
                                     Find an issue and start contributing.
                                 </p>
                             </div>
 
+                            {canManage && (
+                                <button type="button" onClick={() => navigate(`/projects/${projectId}/issues/create`)} className="rounded-xl border-2 border-black bg-[#FF6B6B] px-5 py-3 font-black shadow-[4px_4px_0px_#000]">
+                                    + Create Issue
+                                </button>
+                            )}
+
                         </div>
 
-                        <div className="rounded-2xl border-2 border-black bg-white p-6 font-medium shadow-[5px_5px_0px_#000]">
-                            No issues have been added yet.
-                        </div>
+                        {issues.length === 0 ? (
+                            <div className="rounded-2xl border-2 border-black bg-white p-6 font-medium shadow-[5px_5px_0px_#000]">
+                                No issues have been added yet.
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                {issues.map(issue => (
+                                    <article key={issue._id} className="rounded-2xl border-2 border-black bg-white p-5 shadow-[5px_5px_0px_#000]">
+                                        <div className="flex flex-wrap items-start justify-between gap-3">
+                                            <h3 className="text-xl font-black">{issue.title}</h3>
+                                            <span className="rounded-full border-2 border-black bg-[#FFD166] px-3 py-1 text-xs font-black uppercase">{issue.status}</span>
+                                        </div>
+                                        <p className="mt-2 line-clamp-2 text-sm font-medium leading-6 text-gray-600">{issue.description}</p>
+                                        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t-2 border-black pt-4">
+                                            <div className="flex flex-wrap gap-2">
+                                                <span className="rounded-lg border-2 border-black bg-[#FFF8EE] px-2.5 py-1 text-xs font-black capitalize">{issue.difficulty}</span>
+                                                {issue.requiredSkills.map(skill => (
+                                                    <span key={skill} className="rounded-lg border-2 border-black bg-[#FFF8EE] px-2.5 py-1 text-xs font-black">{skill}</span>
+                                                ))}
+                                            </div>
+                                            <button type="button" onClick={() => navigate(`/projects/${projectId}/issues/${issue._id}`)} className="font-black hover:underline">View issue →</button>
+                                        </div>
+                                    </article>
+                                ))}
+                            </div>
+                        )}
 
                     </section>
 

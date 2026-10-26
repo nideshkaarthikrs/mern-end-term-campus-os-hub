@@ -1,6 +1,7 @@
 import Project from "../models/project.model.js"
 import mongoose from "mongoose"
 import validator from "validator"
+import Issue from "../models/issue.model.js"
 
 const getProjectData = (body) => {
     const { name, description, repositoryUrl, techStack } = body || {}
@@ -130,6 +131,7 @@ export const deleteProject = async (req, res) => {
         if (role !== "admin" && project.owner.toString() !== userId) {
             return res.status(403).json({ message: "You are not authorized to delete this project" })
         }
+        await Issue.deleteMany({ project: projectId })
         await Project.findByIdAndDelete(projectId)
         return res.status(200).json({ message: "Project deleted successfully" })
     } catch (error) {

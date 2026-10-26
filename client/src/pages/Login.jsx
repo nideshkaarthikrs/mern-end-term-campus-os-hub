@@ -129,6 +129,13 @@ const Login = () => {
                     </form>
                 </div>
 
+                <p className="mt-6 text-center font-medium text-gray-600">
+                    New to COSH?{' '}
+                    <button type="button" onClick={() => navigate('/register')} className="font-black text-gray-900 underline">
+                        Create an account
+                    </button>
+                </p>
+
             </div>
         </div>
     )

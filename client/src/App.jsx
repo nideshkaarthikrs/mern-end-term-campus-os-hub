@@ -8,6 +8,9 @@ import Projects from "./pages/Projects.jsx"
 import CreateProject from "./pages/CreateProject.jsx"
 import ProjectDetails from "./pages/ProjectDetails.jsx"
 import EditProject from "./pages/EditProject.jsx"
+import CreateIssue from "./pages/CreateIssue.jsx"
+import IssueDetails from "./pages/IssueDetails.jsx"
+import EditIssue from "./pages/EditIssue.jsx"
 
 function App() {
   return (
@@ -22,6 +25,9 @@ function App() {
               <Route path="/create-project" element={<CreateProject />} />
               <Route path="/projects/:projectId" element={<ProjectDetails />} />
               <Route path="/projects/:projectId/edit" element={<EditProject />} />
+              <Route path="/projects/:projectId/issues/create" element={<CreateIssue />} />
+              <Route path="/projects/:projectId/issues/:issueId" element={<IssueDetails />} />
+              <Route path="/projects/:projectId/issues/:issueId/edit" element={<EditIssue />} />
             </Route>
             {/* Public Routes */}
             <Route path="/login" element={<Login />} />

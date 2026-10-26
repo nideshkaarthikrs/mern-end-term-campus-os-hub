@@ -162,6 +162,13 @@ const Register = () => {
         </form>
       </div>
 
+      <p className="mt-6 text-center font-medium text-gray-600">
+        Already have an account?{' '}
+        <button type="button" onClick={() => navigate('/login')} className="font-black text-gray-900 underline">
+          Log in
+        </button>
+      </p>
+
     </div>
   </div>
 )
