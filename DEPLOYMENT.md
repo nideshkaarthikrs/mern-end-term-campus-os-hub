@@ -16,9 +16,9 @@ The first deploy may fail before its outbound IP ranges are on the Atlas access 
 
 ## 3. Vercel frontend
 
-Import the same GitHub repository into Vercel. Set the [project root directory](https://vercel.com/docs/monorepos) to `client` and use the Vite defaults (`npm run build`, output directory `dist`). Add the environment variable `API_ORIGIN` with the Render service's HTTPS origin, for example `https://cosh-api.onrender.com`. Do not include `/api` or a trailing path. Leave `VITE_API_URL` unset so the frontend requests its own `/api` path.
+Import the same GitHub repository into Vercel. If Vercel detects both applications, click **Import single project** beside `client`. Set the [project root directory](https://vercel.com/docs/monorepos) to `client` and use the Vite defaults (`npm run build`, output directory `dist`). No Vercel environment variables are required. Leave `VITE_API_URL` unset so the frontend requests its own `/api` path. Remove `API_ORIGIN` if you added it during an earlier setup.
 
-The `client/vercel.js` configuration uses [Vercel rewrites](https://vercel.com/docs/routing/rewrites) to forward `/api/*` to Render and send React page routes to `index.html`. Once deployment finishes, check `https://<vercel-site>/api/health`, open `/login`, and test registration, project creation, issue claiming, and completion with the appropriate accounts.
+The `client/vercel.json` configuration uses [Vercel rewrites](https://vercel.com/docs/routing/rewrites) to forward `/api/*` to `https://cosh-api.onrender.com` and send React page routes to `index.html`. If the Render service URL changes, update the first rewrite's destination in that file. Once deployment finishes, check `https://<vercel-site>/api/health`, open `/login`, and test registration, project creation, issue claiming, and completion with the appropriate accounts.
 
 ## Configuration notes
 

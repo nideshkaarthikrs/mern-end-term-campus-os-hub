@@ -57,7 +57,6 @@ Use Node.js 22.12 or newer and a MongoDB connection string.
 | `NODE_ENV` | Server | Set to `production` when deployed |
 | `CLIENT_URL` | Server | Allowed browser origin when calling Render directly; optional with the Vercel proxy |
 | `VITE_API_URL` | Client | Optional API URL override for local or custom setups |
-| `API_ORIGIN` | Vercel | HTTPS origin of the Render API for the production proxy |
 
 ## Checks
 
