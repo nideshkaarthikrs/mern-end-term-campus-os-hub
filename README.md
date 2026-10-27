@@ -28,6 +28,10 @@ Students can withdraw their own claims. Maintainers can edit or delete unclaimed
 - Gemini-powered issue recommendations based on a student's skills, learning goal, and recent contributions
 - Loading, empty, success, and error states
 
+## Application documentation
+
+See the [application documentation](DOCUMENTATION.md) for student and maintainer walkthroughs, permissions, the issue lifecycle, detailed architecture, API routes, and troubleshooting.
+
 ## Tech stack and architecture
 
 The frontend uses React, Vite, JavaScript, and Tailwind CSS. The API uses Node.js and Express. MongoDB stores users, projects, and issues through Mongoose.
