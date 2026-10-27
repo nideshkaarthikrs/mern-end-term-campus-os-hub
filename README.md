@@ -66,4 +66,8 @@ Use Node.js 22.12 or newer and a MongoDB connection string.
 
 ## Deployment
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for the MongoDB Atlas, Render, and Vercel setup. Add the public application URL here after deployment.
+Live application: [campus-os-hub.vercel.app](https://campus-os-hub.vercel.app/)
+
+Backend health: [cosh-api.onrender.com/api/health](https://cosh-api.onrender.com/api/health)
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for the MongoDB Atlas, Render, and Vercel setup.
