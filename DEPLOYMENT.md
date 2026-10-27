@@ -26,3 +26,11 @@ The `client/vercel.json` configuration uses [Vercel rewrites](https://vercel.com
 - Keep `MONGO_URI` and `JWT_SECRET` in Render's environment settings. Never copy them into Vercel's frontend variables or Git.
 - Local development still uses `http://localhost:5005/api`. `VITE_API_URL` can override the client API URL when needed.
 - The free Render web service [spins down after inactivity](https://render.com/docs/free), so its first request may take longer.
+
+## 4. Gemini issue recommendations
+
+Create an API key in [Google AI Studio](https://aistudio.google.com/apikey). For local development, add `GEMINI_API_KEY` to `server/.env` and restart the API. The default model is `gemini-3.5-flash-lite`; set `GEMINI_MODEL` if you need a different supported Gemini model.
+
+For the deployed app, open **Render → cosh-api → Environment → Add Environment Variable**. Add `GEMINI_API_KEY` with the key as its value, and `GEMINI_MODEL` with `gemini-3.5-flash-lite`. Choose **Save and deploy**, then wait for the service to become live. Keep the key out of Git and Vercel frontend variables.
+
+Sign in as a student, open **Browse issues**, and use **Find issues for me**. A working model request shows **Gemini suggestions**. Missing configuration, provider errors, or quota limits show an explanation and **Skill-based suggestions** instead. The API has a 20-second Gemini timeout, validates model responses, and rechecks that recommended issues remain open.

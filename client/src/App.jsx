@@ -1,4 +1,5 @@
 import {Routes, Route, BrowserRouter, Navigate} from "react-router-dom"
+import { lazy, Suspense } from "react"
 import Register from "./pages/Register.jsx"
 import Login from "./pages/Login.jsx"
 import { AuthContextProvider } from "./context/AuthContext.jsx"
@@ -13,8 +14,9 @@ import IssueDetails from "./pages/IssueDetails.jsx"
 import EditIssue from "./pages/EditIssue.jsx"
 import Contributions from "./pages/Contributions.jsx"
 import Landing from "./pages/Landing.jsx"
-import IssueDiscovery from "./pages/IssueDiscovery.jsx"
 import Profile from "./pages/Profile.jsx"
+
+const IssueDiscovery = lazy(() => import("./pages/IssueDiscovery.jsx"))
 
 function App() {
   return (
@@ -26,7 +28,7 @@ function App() {
             <Route element={<ProtectedRoute />} >
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/profile" element={<Profile />} />
-              <Route path="/issues" element={<IssueDiscovery />} />
+              <Route path="/issues" element={<Suspense fallback={<div className="min-h-screen bg-[#FFF8EE] p-8 font-bold">Loading issues...</div>}><IssueDiscovery /></Suspense>} />
               <Route path="/contributions" element={<Contributions />} />
               <Route path="/projects" element={<Projects />} />
               <Route path="/create-project" element={<CreateProject />} />

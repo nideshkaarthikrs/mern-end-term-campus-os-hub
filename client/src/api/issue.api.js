@@ -8,6 +8,10 @@ export const getAllIssues = (filters = {}) => {
     return api.get('/issues', { params: filters })
 }
 
+export const getIssueRecommendations = (goal) => {
+    return api.post('/issues/recommendations', { goal })
+}
+
 export const createIssue = (projectId, issueData) => {
     return api.post(`/projects/${projectId}/issues`, issueData)
 }

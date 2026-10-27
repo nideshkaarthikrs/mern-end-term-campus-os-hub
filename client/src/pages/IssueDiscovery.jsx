@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { getAllIssues } from "../api/issue.api.js"
+import IssueRecommendations from "../components/IssueRecommendations.jsx"
 
 const emptyFilters = { search: "", technology: "", difficulty: "", skill: "", status: "" }
 
@@ -56,6 +57,8 @@ const IssueDiscovery = () => {
                     </div>
                     <button type="button" onClick={() => navigate('/projects')} className="rounded-xl border-2 border-black bg-white px-5 py-3 font-black shadow-[3px_3px_0px_#000]">Explore projects →</button>
                 </div>
+
+                <IssueRecommendations />
 
                 <form onSubmit={applyFilters} className="mb-8 rounded-2xl border-2 border-black bg-white p-5 shadow-[5px_5px_0px_#000]">
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

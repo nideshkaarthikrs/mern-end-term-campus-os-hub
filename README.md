@@ -25,6 +25,7 @@ Students can withdraw their own claims. Maintainers can edit or delete unclaimed
 - Project and issue management with ownership checks
 - Issue claiming, withdrawal, and maintainer completion
 - Keyword search and filters for technology, skill, difficulty, and status
+- Gemini-powered issue recommendations based on a student's skills, learning goal, and recent contributions
 - Loading, empty, success, and error states
 
 ## Tech stack and architecture
@@ -36,6 +37,10 @@ React frontend → Express API → MongoDB
 ```
 
 The frontend calls `/api` in production. Vercel forwards those requests to the Render API. Authentication uses an HTTP-only cookie, and the API checks the current account role and resource ownership before protected actions.
+
+For recommendations, the API ranks up to 100 recent open issues and sends the best 15 candidates to Gemini. It validates the returned issue IDs, removes duplicate or unavailable suggestions, and checks that the issues are still open. The model never claims an issue or changes contribution records.
+
+Students can use **Find issues for me** on the issue discovery page. Gemini receives their skills, optional learning goal, up to five recent contribution summaries, and candidate issue details. Account names, email addresses, passwords, and login tokens are excluded. If Gemini is unavailable, unconfigured, or over quota, the page clearly labels the results as skill-based suggestions.
 
 ## Run locally
 
@@ -57,6 +62,10 @@ Use Node.js 22.12 or newer and a MongoDB connection string.
 | `NODE_ENV` | Server | Set to `production` when deployed |
 | `CLIENT_URL` | Server | Allowed browser origin when calling Render directly; optional with the Vercel proxy |
 | `VITE_API_URL` | Client | Optional API URL override for local or custom setups |
+| `GEMINI_API_KEY` | Server | Optional Google AI Studio key for AI recommendations; keep it on the server |
+| `GEMINI_MODEL` | Server | Gemini model; defaults to `gemini-3.5-flash-lite` |
+
+The recommendation endpoint allows three new Gemini requests per student per minute. Identical requests are cached for five minutes; provider failures are cached for 30 seconds. These limits and caches are held in server memory and reset when the server restarts. The existing application and skill-based recommendations work without a Gemini key. Google applies its own [free-tier quotas and data-use terms](https://ai.google.dev/gemini-api/docs/pricing).
 
 ## Checks
 
