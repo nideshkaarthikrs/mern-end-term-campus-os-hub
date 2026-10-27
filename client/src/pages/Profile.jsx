@@ -69,7 +69,7 @@ const Profile = () => {
                     <h1 className="text-4xl font-black tracking-tight md:text-5xl">Your open-source profile</h1>
                 </div>
 
-                <div className="grid gap-8 lg:grid-cols-[1fr_280px]">
+                <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_280px]">
                     <form onSubmit={handleSubmit} className="rounded-3xl border-2 border-black bg-white p-6 shadow-[7px_7px_0px_#000] md:p-8">
                         {error && <div className="mb-6 rounded-xl border-2 border-black bg-[#FF6B6B] p-4 font-bold">{error}</div>}
                         {saved && <div className="mb-6 rounded-xl border-2 border-black bg-[#A7F3D0] p-4 font-bold">Profile saved.</div>}
@@ -80,7 +80,7 @@ const Profile = () => {
                         </div>
                         <div className="mb-6">
                             <p className="mb-2 text-sm font-black">Email</p>
-                            <p className="rounded-xl border-2 border-black bg-[#FFF8EE] px-4 py-3 font-medium text-gray-600">{user.email}</p>
+                            <p className="break-all rounded-xl border-2 border-black bg-[#FFF8EE] px-4 py-3 font-medium text-gray-600">{user.email}</p>
                         </div>
                         <div className="mb-6">
                             <label htmlFor="bio" className="mb-2 block text-sm font-black">Bio</label>

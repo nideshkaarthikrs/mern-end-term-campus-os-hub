@@ -1,9 +1,11 @@
-import { useState } from "react"
+import { useContext, useState } from "react"
 import { createProject } from "../api/project.api.js"
 import { useNavigate } from "react-router-dom"
+import { AuthContext } from "../context/AuthContext.jsx"
 
 const CreateProject = () => {
 
+    const { user } = useContext(AuthContext)
     const [formData, setFormData] = useState({
         name:"",
         description:"",
@@ -13,6 +15,7 @@ const CreateProject = () => {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
     const navigate = useNavigate()
+    const canCreate = ["maintainer", "admin"].includes(user?.role)
 
     function handleForm(e) {
         setFormData(prevData => {
@@ -85,6 +88,8 @@ const CreateProject = () => {
                 </div>
 
                 {/* Form */}
+                {!canCreate && <p className="font-bold">Only maintainers can create projects.</p>}
+                {canCreate && (
                 <form className="rounded-3xl border-2 border-black bg-white p-6 shadow-[7px_7px_0px_#000] md:p-8"
                 onSubmit={handleSubmit}
                 >
@@ -204,6 +209,7 @@ const CreateProject = () => {
                     </div>
 
                 </form>
+                )}
             </div>
         </div>
     )
