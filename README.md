@@ -79,4 +79,6 @@ Live application: [campus-os-hub.vercel.app](https://campus-os-hub.vercel.app/)
 
 Backend health: [cosh-api.onrender.com/api/health](https://cosh-api.onrender.com/api/health)
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for the MongoDB Atlas, Render, and Vercel setup.
+## Demo video
+
+[Watch the COSH demo](https://drive.google.com/file/d/1-gwSDKgwz-lLkeqjG1WGOJtKNaYzoPJv/view?usp=drive_link)
